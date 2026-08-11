@@ -35,6 +35,7 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
   useEffect(() => {
     if (!data) return;
 
+    const partnerData = data;
     let mounted = true;
     async function loadIndex() {
       try {
@@ -54,7 +55,7 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
             .replace(/[^a-z0-9-]+/g, "-")
             .replace(/^-+|-+$/g, "");
 
-        const folder = data.assetFolder.replace(/\\/g, "/");
+        const folder = partnerData.assetFolder.replace(/\\/g, "/");
         const entry = index.find((e: any) => normalize(e.folder) === normalize(folder));
 
         if (entry && entry.files.length > 0) {
@@ -70,8 +71,8 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
             else if (/flyer|panfleto|poster|cartaz/.test(fileNameLower)) specific = "Flyer / Panfleto";
             else if (/art|arte|design|cover|poster/.test(fileNameLower)) specific = "Arte";
 
-            const projectTitle = data.projects?.[i]?.title;
-            const title = projectTitle ? projectTitle : `${data.name} — ${specific}`;
+            const projectTitle = partnerData.projects?.[i]?.title;
+            const title = projectTitle ? projectTitle : `${partnerData.name} — ${specific}`;
             const description = specific;
             const category = specific;
 
@@ -79,7 +80,7 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
               title,
               description,
               category,
-              tags: [type === "video" ? "Motion" : "Visual", ...(data.tags.slice(0, 1) || [])],
+              tags: [type === "video" ? "Motion" : "Visual", ...(partnerData.tags.slice(0, 1) || [])],
               type: type as "image" | "video",
               src: import.meta.env.BASE_URL + f.src,
             };
@@ -90,22 +91,22 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
         }
 
         // fallback to partner image + projects
-        const fallback = [
+        const fallback: PartnerMediaItem[] = [
           {
-            title: `${data.name} — Destaque`,
-            description: data.description,
+            title: `${partnerData.name} — Destaque`,
+            description: partnerData.description,
             category: "Apresentação",
-            tags: data.tags.slice(0, 2),
+            tags: partnerData.tags.slice(0, 2),
             type: "image",
-            src: data.image,
+            src: partnerData.image,
           },
-          ...data.projects.map((project) => ({
+          ...partnerData.projects.map((project) => ({
             title: project.title,
             description: project.category,
             category: project.category,
             tags: project.tags,
             type: "image" as const,
-            src: data.image,
+            src: partnerData.image,
           })),
         ];
 
@@ -189,7 +190,11 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
             </Reveal>
 
             <div className="mt-12">
-              {media.length === 0 ? (
+              {media === null ? (
+                <div className="mx-auto max-w-2xl rounded-2xl border border-border p-12 text-center">
+                  <h3 className="text-xl font-semibold">Carregando mídias...</h3>
+                </div>
+              ) : media.length === 0 ? (
                 <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-border p-12 text-center">
                   <h3 className="text-xl font-semibold">As mídias serão carregadas em breve</h3>
                   <p className="mt-3 text-sm text-muted-foreground">Estamos a preparar os conteúdos para este parceiro. Volte mais tarde para ver atualizações.</p>
