@@ -4,7 +4,7 @@ import { ArrowLeft, Heart } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Reveal } from "@/components/Reveal";
 import { SocialLinks } from "@/components/SocialLinks";
-const logo = "/assets/eagle-logo.png";
+const logo = import.meta.env.BASE_URL + "assets/eagle-logo.png";
 import { getPartnerBySlug, PartnerData } from "@/lib/partners";
 
 export const Route = createFileRoute("/parceiros/$partner")({
@@ -214,7 +214,7 @@ function getPartnerMedia(partner: PartnerData): PartnerMediaItem[] {
 
   const folder = partner.assetFolder.replace(/\\/g, "/");
   const entries = Object.entries(partnerMediaImports).filter(([key]) =>
-    key.includes(`/assets/parceiros/${folder}/`),
+    key.includes(`parceiros/${folder}/`),
   );
 
   const mediaItems = entries.map(([key, src], i) => {

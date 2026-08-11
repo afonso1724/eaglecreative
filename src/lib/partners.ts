@@ -1,7 +1,8 @@
-const partner1 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.54 PM.jpeg";
-const partner2 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.54 PM (1).jpeg";
-const partner3 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.56 PM.jpeg";
-const partner4 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.57 PM.jpeg";
+const PARTNERS_BASE = import.meta.env.BASE_URL + "assets/parceiros/";
+const partner1 = PARTNERS_BASE + "WhatsApp Image 2026-08-10 at 8.01.54 PM.jpeg";
+const partner2 = PARTNERS_BASE + "WhatsApp Image 2026-08-10 at 8.01.54 PM (1).jpeg";
+const partner3 = PARTNERS_BASE + "WhatsApp Image 2026-08-10 at 8.01.56 PM.jpeg";
+const partner4 = PARTNERS_BASE + "WhatsApp Image 2026-08-10 at 8.01.57 PM.jpeg";
 
 export interface PartnerProject {
   title: string;
@@ -136,5 +137,15 @@ export const partners: PartnerData[] = [
 ];
 
 export function getPartnerBySlug(slug: string) {
-  return partners.find((partner) => partner.slug === slug);
+  const normalize = (s: string) =>
+    s
+      .toString()
+      .normalize("NFKD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  const target = normalize(slug || "");
+  return partners.find((partner) => normalize(partner.slug) === target);
 }
