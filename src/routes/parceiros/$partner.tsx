@@ -4,7 +4,7 @@ import { ArrowLeft, Heart } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Reveal } from "@/components/Reveal";
 import { SocialLinks } from "@/components/SocialLinks";
-import logo from "@/assets/eagle-logo.jpeg";
+import logo from "@/assets/eagle-logo.png";
 import { getPartnerBySlug, PartnerData } from "@/lib/partners";
 
 export const Route = createFileRoute("/parceiros/$partner")({
