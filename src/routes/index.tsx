@@ -18,14 +18,13 @@ import { Reveal } from "@/components/Reveal";
 import { Typewriter } from "@/components/Typewriter";
 import { ContactForm } from "@/components/ContactForm";
 import { SocialLinks } from "@/components/SocialLinks";
-const ASSETS_BASE = import.meta.env.BASE_URL + "assets/";
-const logo = ASSETS_BASE + "eagle-logo.png";
-const eliseu = ASSETS_BASE + "team/eliseu.png";
+import logo from "@/assets/eagle-logo.png";
+import eliseu from "@/assets/team/eliseu.png";
 import { partners } from "@/lib/partners";
 import { EMAIL, WHATSAPP_NUMBER, WHATSAPP_URL } from "@/lib/site";
-const josue = ASSETS_BASE + "team/josue.png";
-const lucia = ASSETS_BASE + "team/lucia.png";
-const tilson = ASSETS_BASE + "team/tilson.png";
+import josue from "@/assets/team/josue.png";
+import lucia from "@/assets/team/lucia.png";
+import tilson from "@/assets/team/tilson.png";
 
 const WHATSAPP = WHATSAPP_URL;
 

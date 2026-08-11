@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, Heart } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Reveal } from "@/components/Reveal";
 import { SocialLinks } from "@/components/SocialLinks";
-const logo = import.meta.env.BASE_URL + "assets/eagle-logo.png";
+import logo from "@/assets/eagle-logo.png";
 import { getPartnerBySlug, PartnerData } from "@/lib/partners";
 
 export const Route = createFileRoute("/parceiros/$partner")({
@@ -29,6 +30,97 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
   const partner = props?.params?.partner;
   const data = getPartnerBySlug(partner ?? "");
 
+  const [media, setMedia] = useState<PartnerMediaItem[] | null>(null);
+
+  useEffect(() => {
+    if (!data) return;
+
+    let mounted = true;
+    async function loadIndex() {
+      try {
+        const res = await fetch(import.meta.env.BASE_URL + "assets/parceiros/index.json");
+        if (!res.ok) {
+          if (mounted) setMedia([]);
+          return;
+        }
+        const index = await res.json();
+
+        const normalize = (s: string) =>
+          s
+            .toString()
+            .normalize("NFKD")
+            .replace(/\p{Diacritic}/gu, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
+        const folder = data.assetFolder.replace(/\\/g, "/");
+        const entry = index.find((e: any) => normalize(e.folder) === normalize(folder));
+
+        if (entry && entry.files.length > 0) {
+          const items: PartnerMediaItem[] = entry.files.map((f: any, i: number) => {
+            const fileName = f.file;
+            const baseName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+            const fileNameLower = baseName.toLowerCase();
+            const extension = fileName.split('.').pop()?.toLowerCase() ?? "";
+            const type = extension === "mp4" ? "video" : "image";
+
+            let specific = "Imagem";
+            if (type === "video") specific = "Vídeo";
+            else if (/flyer|panfleto|poster|cartaz/.test(fileNameLower)) specific = "Flyer / Panfleto";
+            else if (/art|arte|design|cover|poster/.test(fileNameLower)) specific = "Arte";
+
+            const projectTitle = data.projects?.[i]?.title;
+            const title = projectTitle ? projectTitle : `${data.name} — ${specific}`;
+            const description = specific;
+            const category = specific;
+
+            return {
+              title,
+              description,
+              category,
+              tags: [type === "video" ? "Motion" : "Visual", ...(data.tags.slice(0, 1) || [])],
+              type: type as "image" | "video",
+              src: import.meta.env.BASE_URL + f.src,
+            };
+          });
+
+          if (mounted) setMedia(items);
+          return;
+        }
+
+        // fallback to partner image + projects
+        const fallback = [
+          {
+            title: `${data.name} — Destaque`,
+            description: data.description,
+            category: "Apresentação",
+            tags: data.tags.slice(0, 2),
+            type: "image",
+            src: data.image,
+          },
+          ...data.projects.map((project) => ({
+            title: project.title,
+            description: project.category,
+            category: project.category,
+            tags: project.tags,
+            type: "image" as const,
+            src: data.image,
+          })),
+        ];
+
+        if (mounted) setMedia(fallback);
+      } catch (e) {
+        if (mounted) setMedia([]);
+      }
+    }
+
+    loadIndex();
+    return () => {
+      mounted = false;
+    };
+  }, [data]);
+
   if (!data) {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -49,7 +141,8 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
     );
   }
 
-  const media = getPartnerMedia(data);
+  // media is loaded asynchronously into state by the effect above
+  // `media` state may be null (loading), [] (no media) or array of items
 
   return (
     <div className="min-h-screen">
@@ -194,9 +287,10 @@ function PartnerPage(props?: { params?: { partner?: string } }) {
   );
 }
 
-// Assets were moved to `public/assets`; import.meta.glob cannot read `public` at build-time.
-// Fall back to an empty map so the UI will use the partner's `image` fallback.
-const partnerMediaImports: Record<string, string> = {};
+const partnerMediaImports = import.meta.glob(
+  "../../assets/parceiros/**/*.{jpeg,jpg,png,webp,mp4}",
+  { eager: true, as: "url" },
+) as Record<string, string>;
 
 type PartnerMediaItem = {
   title: string;

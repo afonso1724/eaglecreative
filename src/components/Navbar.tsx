@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-const logo = import.meta.env.BASE_URL + "assets/eagle-logo.png";
+import logo from "@/assets/eagle-logo.png";
 
 const links = [
   { href: "#inicio", label: "Início" },
