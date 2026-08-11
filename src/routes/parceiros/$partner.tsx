@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, Heart } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Reveal } from "@/components/Reveal";
 import { SocialLinks } from "@/components/SocialLinks";
@@ -26,101 +25,11 @@ export const Route = createFileRoute("/parceiros/$partner")({
   component: PartnerPage,
 });
 
-function PartnerPage(props?: { params?: { partner?: string } }) {
-  const partner = props?.params?.partner;
-  const data = getPartnerBySlug(partner ?? "");
-
-  const [media, setMedia] = useState<PartnerMediaItem[] | null>(null);
-
-  useEffect(() => {
-    if (!data) return;
-
-    const partnerData = data;
-    let mounted = true;
-    async function loadIndex() {
-      try {
-        const res = await fetch(import.meta.env.BASE_URL + "assets/parceiros/index.json");
-        if (!res.ok) {
-          if (mounted) setMedia([]);
-          return;
-        }
-        const index = await res.json();
-
-        const normalize = (s: string) =>
-          s
-            .toString()
-            .normalize("NFKD")
-            .replace(/\p{Diacritic}/gu, "")
-            .toLowerCase()
-            .replace(/[^a-z0-9-]+/g, "-")
-            .replace(/^-+|-+$/g, "");
-
-        const folder = partnerData.assetFolder.replace(/\\/g, "/");
-        const entry = index.find((e: any) => normalize(e.folder) === normalize(folder));
-
-        if (entry && entry.files.length > 0) {
-          const items: PartnerMediaItem[] = entry.files.map((f: any, i: number) => {
-            const fileName = f.file;
-            const baseName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
-            const fileNameLower = baseName.toLowerCase();
-            const extension = fileName.split('.').pop()?.toLowerCase() ?? "";
-            const type = extension === "mp4" ? "video" : "image";
-
-            let specific = "Imagem";
-            if (type === "video") specific = "Vídeo";
-            else if (/flyer|panfleto|poster|cartaz/.test(fileNameLower)) specific = "Flyer / Panfleto";
-            else if (/art|arte|design|cover|poster/.test(fileNameLower)) specific = "Arte";
-
-            const projectTitle = partnerData.projects?.[i]?.title;
-            const title = projectTitle ? projectTitle : `${partnerData.name} — ${specific}`;
-            const description = specific;
-            const category = specific;
-
-            return {
-              title,
-              description,
-              category,
-              tags: [type === "video" ? "Motion" : "Visual", ...(partnerData.tags.slice(0, 1) || [])],
-              type: type as "image" | "video",
-              src: import.meta.env.BASE_URL + f.src,
-            };
-          });
-
-          if (mounted) setMedia(items);
-          return;
-        }
-
-        // fallback to partner image + projects
-        const fallback: PartnerMediaItem[] = [
-          {
-            title: `${partnerData.name} — Destaque`,
-            description: partnerData.description,
-            category: "Apresentação",
-            tags: partnerData.tags.slice(0, 2),
-            type: "image",
-            src: partnerData.image,
-          },
-          ...partnerData.projects.map((project) => ({
-            title: project.title,
-            description: project.category,
-            category: project.category,
-            tags: project.tags,
-            type: "image" as const,
-            src: partnerData.image,
-          })),
-        ];
-
-        if (mounted) setMedia(fallback);
-      } catch (e) {
-        if (mounted) setMedia([]);
-      }
-    }
-
-    loadIndex();
-    return () => {
-      mounted = false;
-    };
-  }, [data]);
+function PartnerPage() {
+  const params = Route.useParams();
+  const partner = params.partner ?? "";
+  const data = getPartnerBySlug(partner);
+  const media = data ? getPartnerMedia(data) : null;
 
   if (!data) {
     return (
@@ -306,15 +215,29 @@ type PartnerMediaItem = {
   src: string;
 };
 
+function normalizeAssetPath(value: string) {
+  return value
+    .toString()
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/\\/g, "/")
+    .toLowerCase()
+    .replace(/[^a-z0-9/]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function getPartnerMedia(partner: PartnerData): PartnerMediaItem[] {
   // If this partner is known to not have available media yet, return empty so
   // the UI shows the placeholder message.
   if (partner.slug === "sanilimp") return [];
 
-  const folder = partner.assetFolder.replace(/\\/g, "/");
-  const entries = Object.entries(partnerMediaImports).filter(([key]) =>
-    key.includes(`parceiros/${folder}/`),
-  );
+  const folder = normalizeAssetPath(partner.assetFolder);
+  const entries = Object.entries(partnerMediaImports)
+    .filter(([key]) => {
+      const normalizedKey = normalizeAssetPath(key);
+      return normalizedKey.includes(`/parceiros/${folder}/`);
+    })
+    .sort(([a], [b]) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 
   const mediaItems = entries.map(([key, src], i) => {
     const fileName = key.split("/").pop() ?? "media";
