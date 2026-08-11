@@ -18,7 +18,7 @@ import { Reveal } from "@/components/Reveal";
 import { Typewriter } from "@/components/Typewriter";
 import { ContactForm } from "@/components/ContactForm";
 import { SocialLinks } from "@/components/SocialLinks";
-import logo from "@/assets/eagle-logo.png";
+import logo from "@/assets/eagle-logo.jpeg";
 import eliseu from "@/assets/team/eliseu.png";
 import { partners } from "@/lib/partners";
 import { EMAIL, WHATSAPP_NUMBER, WHATSAPP_URL } from "@/lib/site";

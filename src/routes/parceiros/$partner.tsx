@@ -4,7 +4,7 @@ import { ArrowLeft, Heart } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Reveal } from "@/components/Reveal";
 import { SocialLinks } from "@/components/SocialLinks";
-import logo from "@/assets/eagle-logo.png";
+import logo from "@/assets/eagle-logo.jpeg";
 import { getPartnerBySlug, PartnerData } from "@/lib/partners";
 
 export const Route = createFileRoute("/parceiros/$partner")({
@@ -204,7 +204,7 @@ function PartnerPage() {
 const partnerMediaImports = import.meta.glob(
   "../../assets/parceiros/**/*.{jpeg,jpg,png,webp,mp4}",
   { eager: true, as: "url" },
-) as Record<string, string>;
+) as Record<string, unknown>;
 
 type PartnerMediaItem = {
   title: string;
@@ -214,6 +214,16 @@ type PartnerMediaItem = {
   type: "image" | "video";
   src: string;
 };
+
+function resolveAssetUrl(asset: unknown): string {
+  if (typeof asset === "string") return asset;
+  if (asset && typeof asset === "object" && "default" in asset) {
+    const defaultValue = (asset as any).default;
+    if (typeof defaultValue === "string") return defaultValue;
+    if (typeof defaultValue === "function") return defaultValue();
+  }
+  return String(asset ?? "");
+}
 
 function normalizeAssetPath(value: string) {
   return value
@@ -264,7 +274,7 @@ function getPartnerMedia(partner: PartnerData): PartnerMediaItem[] {
       category,
       tags: [type === "video" ? "Motion" : "Visual", ...(partner.tags.slice(0, 1) || [])],
       type: type as "image" | "video",
-      src,
+      src: resolveAssetUrl(src),
     };
   });
 
