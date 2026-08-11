@@ -74,13 +74,23 @@ const about = [
 ];
 
 const team = [
-  { name: "Tilson Contreira",
+  {
+    name: "Tilson Contreira",
     role: "CEO, DIRETOR CRIATIVO & GESTOR DE REDES SOCIAIS",
-    image: tilson },
-  { name: "Lúcia Calala", role: "Apresentadora e Copywriter", image: lucia },
+    image: tilson,
+    objectFit: "contain",
+  },
+  {
+    name: "Lúcia Calala",
+    role: "Apresentadora e Copywriter",
+    image: lucia,
+    objectFit: "contain",
+  },
   { name: "Josué Manuel", role: "Video Maker", image: josue },
   {
-    name: "Eliseu Bernardo", role: "Designer Gráfico", image: eliseu,
+    name: "Eliseu Bernardo",
+    role: "Designer Gráfico",
+    image: eliseu,
   },
 ];
 
@@ -269,7 +279,7 @@ function Index() {
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="mx-auto h-20 w-20 rounded-full object-cover"
+                      className={`mx-auto h-20 w-20 rounded-full ${member.objectFit === "contain" ? "object-contain" : "object-cover"}`}
                     />
                     <h3 className="mt-5 text-lg font-semibold">{member.name}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{member.role}</p>
