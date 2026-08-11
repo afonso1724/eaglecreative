@@ -1,10 +1,10 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, Heart } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Reveal } from "@/components/Reveal";
 import { SocialLinks } from "@/components/SocialLinks";
-import logo from "@/assets/eagle-logo.png";
+const logo = "/assets/eagle-logo.png";
 import { getPartnerBySlug, PartnerData } from "@/lib/partners";
 
 export const Route = createFileRoute("/parceiros/$partner")({
@@ -25,8 +25,8 @@ export const Route = createFileRoute("/parceiros/$partner")({
   component: PartnerPage,
 });
 
-function PartnerPage() {
-  const { partner } = useParams({});
+function PartnerPage(props?: { params?: { partner?: string } }) {
+  const partner = props?.params?.partner;
   const data = getPartnerBySlug(partner ?? "");
 
   if (!data) {
@@ -194,10 +194,9 @@ function PartnerPage() {
   );
 }
 
-const partnerMediaImports = import.meta.glob(
-  "../../assets/parceiros/**/*.{jpeg,jpg,png,webp,mp4}",
-  { eager: true, as: "url" },
-) as Record<string, string>;
+// Assets were moved to `public/assets`; import.meta.glob cannot read `public` at build-time.
+// Fall back to an empty map so the UI will use the partner's `image` fallback.
+const partnerMediaImports: Record<string, string> = {};
 
 type PartnerMediaItem = {
   title: string;

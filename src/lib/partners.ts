@@ -1,7 +1,7 @@
-import partner1 from "@/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.54 PM.jpeg";
-import partner2 from "@/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.54 PM (1).jpeg";
-import partner3 from "@/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.56 PM.jpeg";
-import partner4 from "@/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.57 PM.jpeg";
+const partner1 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.54 PM.jpeg";
+const partner2 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.54 PM (1).jpeg";
+const partner3 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.56 PM.jpeg";
+const partner4 = "/assets/parceiros/WhatsApp Image 2026-08-10 at 8.01.57 PM.jpeg";
 
 export interface PartnerProject {
   title: string;
